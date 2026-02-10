@@ -1,0 +1,122 @@
+import { useState } from 'react';
+import { useUser } from '@/contexts/UserContext';
+import BottomNav from '@/components/BottomNav';
+import XPProgressBar from '@/components/XPProgressBar';
+import { Check, Zap, Clock, Star } from 'lucide-react';
+
+interface Mission {
+  id: string;
+  title: string;
+  description: string;
+  xp: number;
+  type: 'daily' | 'weekly';
+}
+
+const missions: Mission[] = [
+  { id: 'mission-1', title: 'Learn Compounding', description: 'Understand how compounding works for NPS', xp: 50, type: 'daily' },
+  { id: 'mission-2', title: 'NPS Tier I Quiz', description: 'Complete the Tier I knowledge quiz', xp: 100, type: 'daily' },
+  { id: 'mission-3', title: 'Simulate 10% Growth', description: 'Run a retirement simulation at 10% return', xp: 75, type: 'daily' },
+  { id: 'mission-4', title: 'Log Contribution', description: 'Record this month\'s NPS contribution', xp: 150, type: 'weekly' },
+  { id: 'mission-5', title: 'Tax Benefits Module', description: 'Learn about NPS tax saving benefits', xp: 80, type: 'weekly' },
+  { id: 'mission-6', title: 'Share with a Friend', description: 'Invite a friend to start their NPS journey', xp: 200, type: 'weekly' },
+];
+
+const Missions = () => {
+  const { user, addXP, completeMission } = useUser();
+  const [celebrating, setCelebrating] = useState<string | null>(null);
+  const [filter, setFilter] = useState<'all' | 'daily' | 'weekly'>('all');
+
+  const handleComplete = (mission: Mission) => {
+    if (user.completedMissions.includes(mission.id)) return;
+    setCelebrating(mission.id);
+    addXP(mission.xp);
+    completeMission(mission.id);
+    setTimeout(() => setCelebrating(null), 1500);
+  };
+
+  const filtered = missions.filter(m => filter === 'all' || m.type === filter);
+
+  return (
+    <div className="min-h-screen bg-background pb-24">
+      <div className="gradient-primary px-5 pb-5 pt-8">
+        <h1 className="mb-3 font-display text-xl font-bold text-primary-foreground">Missions</h1>
+        <XPProgressBar />
+      </div>
+
+      <div className="mx-auto max-w-md px-5 mt-4 space-y-4">
+        {/* Filter tabs */}
+        <div className="flex gap-2">
+          {(['all', 'daily', 'weekly'] as const).map(f => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`rounded-full px-4 py-1.5 text-xs font-semibold capitalize transition-all ${
+                filter === f
+                  ? 'gradient-primary text-primary-foreground'
+                  : 'bg-muted text-muted-foreground'
+              }`}
+            >
+              {f}
+            </button>
+          ))}
+        </div>
+
+        {/* Mission cards */}
+        {filtered.map((mission, i) => {
+          const completed = user.completedMissions.includes(mission.id);
+          const isCelebrating = celebrating === mission.id;
+
+          return (
+            <div
+              key={mission.id}
+              className={`game-card animate-fade-in-up ${completed ? 'opacity-70' : ''} ${isCelebrating ? 'animate-scale-in' : ''}`}
+              style={{ animationDelay: `${0.05 * i}s` }}
+            >
+              <div className="flex items-start gap-3">
+                <button
+                  onClick={() => handleComplete(mission)}
+                  disabled={completed}
+                  className={`mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border-2 transition-all duration-300 ${
+                    completed
+                      ? 'border-success bg-success text-success-foreground'
+                      : 'border-primary/30 hover:border-primary hover:bg-primary/10'
+                  }`}
+                >
+                  {completed && <Check size={16} />}
+                </button>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <h3 className={`text-sm font-bold ${completed ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+                      {mission.title}
+                    </h3>
+                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                      mission.type === 'daily' ? 'bg-primary/10 text-primary' : 'bg-accent/10 text-accent'
+                    }`}>
+                      {mission.type === 'daily' ? <Clock size={10} className="inline mr-0.5" /> : <Star size={10} className="inline mr-0.5" />}
+                      {mission.type}
+                    </span>
+                  </div>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{mission.description}</p>
+                </div>
+                <div className="xp-badge flex-shrink-0">
+                  <Zap size={12} />
+                  +{mission.xp} XP
+                </div>
+              </div>
+
+              {isCelebrating && (
+                <div className="mt-3 rounded-xl bg-success/10 p-2 text-center animate-xp-pop">
+                  <span className="text-sm font-bold text-success">🎉 +{mission.xp} XP Earned!</span>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <BottomNav />
+    </div>
+  );
+};
+
+export default Missions;
