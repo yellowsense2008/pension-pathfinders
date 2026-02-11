@@ -3,10 +3,11 @@ import { useUser } from '@/contexts/UserContext';
 import BottomNav from '@/components/BottomNav';
 import { BookOpen, Check, ChevronRight, Zap, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { t, TranslationKey } from '@/lib/translations';
 
 interface Module {
   id: string;
-  title: string;
+  titleKey: string;
   emoji: string;
   xp: number;
   content: string[];
@@ -16,7 +17,7 @@ interface Module {
 const modules: Module[] = [
   {
     id: 'what-is-nps',
-    title: 'What is NPS?',
+    titleKey: 'what-is-nps',
     emoji: '📘',
     xp: 100,
     content: [
@@ -32,7 +33,7 @@ const modules: Module[] = [
   },
   {
     id: 'tier-1-vs-2',
-    title: 'Tier I vs Tier II',
+    titleKey: 'tier-1-vs-2',
     emoji: '⚖️',
     xp: 100,
     content: [
@@ -48,7 +49,7 @@ const modules: Module[] = [
   },
   {
     id: 'compounding',
-    title: 'Power of Compounding',
+    titleKey: 'compounding',
     emoji: '📈',
     xp: 120,
     content: [
@@ -64,7 +65,7 @@ const modules: Module[] = [
   },
   {
     id: 'tax-benefits',
-    title: 'Tax Benefits under NPS',
+    titleKey: 'tax-benefits',
     emoji: '🧾',
     xp: 100,
     content: [
@@ -80,7 +81,7 @@ const modules: Module[] = [
   },
   {
     id: 'start-early',
-    title: 'Why Start Early?',
+    titleKey: 'start-early',
     emoji: '🚀',
     xp: 100,
     content: [
@@ -99,9 +100,10 @@ const modules: Module[] = [
 const Learn = () => {
   const { user, addXP, completeModule } = useUser();
   const [activeModule, setActiveModule] = useState<Module | null>(null);
-  const [quizStep, setQuizStep] = useState(-1); // -1 = reading, 0+ = quiz question
+  const [quizStep, setQuizStep] = useState(-1);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [score, setScore] = useState(0);
+  const lang = user.language;
 
   const handleStartQuiz = () => setQuizStep(0);
 
@@ -119,7 +121,6 @@ const Learn = () => {
       setQuizStep(s => s + 1);
       setSelectedAnswer(null);
     } else {
-      // Complete
       addXP(activeModule.xp);
       completeModule(activeModule.id);
       setActiveModule(null);
@@ -136,6 +137,8 @@ const Learn = () => {
     setSelectedAnswer(null);
   };
 
+  const getModuleTitle = (mod: Module) => t(lang, `learn.moduleTitles.${mod.titleKey}` as TranslationKey);
+
   if (activeModule) {
     const inQuiz = quizStep >= 0;
     const q = inQuiz ? activeModule.quiz[quizStep] : null;
@@ -144,10 +147,10 @@ const Learn = () => {
       <div className="min-h-screen bg-background pb-24">
         <div className="gradient-primary px-5 pb-5 pt-8">
           <button onClick={handleBack} className="mb-2 flex items-center gap-1 text-sm text-primary-foreground/70">
-            <ArrowLeft size={16} /> Back
+            <ArrowLeft size={16} /> {t(lang, 'learn.back')}
           </button>
           <h1 className="font-display text-xl font-bold text-primary-foreground">
-            {activeModule.emoji} {activeModule.title}
+            {activeModule.emoji} {getModuleTitle(activeModule)}
           </h1>
         </div>
 
@@ -160,13 +163,13 @@ const Learn = () => {
                 </div>
               ))}
               <Button onClick={handleStartQuiz} className="w-full gradient-accent text-secondary-foreground rounded-xl py-5 font-bold">
-                Take the Quiz →
+                {t(lang, 'learn.takeQuiz')}
               </Button>
             </>
           ) : q ? (
             <div className="animate-scale-in">
               <div className="mb-4 text-center">
-                <span className="text-xs text-muted-foreground">Question {quizStep + 1} of {activeModule.quiz.length}</span>
+                <span className="text-xs text-muted-foreground">{t(lang, 'learn.question')} {quizStep + 1} {t(lang, 'learn.of')} {activeModule.quiz.length}</span>
                 <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
                   <div className="h-full gradient-xp transition-all" style={{ width: `${((quizStep + 1) / activeModule.quiz.length) * 100}%` }} />
                 </div>
@@ -195,7 +198,7 @@ const Learn = () => {
               </div>
               {selectedAnswer !== null && (
                 <Button onClick={handleNext} className="mt-4 w-full gradient-primary text-primary-foreground rounded-xl py-5 font-bold animate-fade-in">
-                  {quizStep < activeModule.quiz.length - 1 ? 'Next Question →' : `Complete (+${activeModule.xp} XP) 🎉`}
+                  {quizStep < activeModule.quiz.length - 1 ? t(lang, 'learn.nextQuestion') : `${t(lang, 'learn.complete')} (+${activeModule.xp} XP) 🎉`}
                 </Button>
               )}
             </div>
@@ -209,8 +212,8 @@ const Learn = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       <div className="gradient-primary px-5 pb-5 pt-8">
-        <h1 className="mb-1 font-display text-xl font-bold text-primary-foreground">Learn NPS</h1>
-        <p className="text-xs text-primary-foreground/70">Interactive modules to level up your knowledge</p>
+        <h1 className="mb-1 font-display text-xl font-bold text-primary-foreground">{t(lang, 'learn.title')}</h1>
+        <p className="text-xs text-primary-foreground/70">{t(lang, 'learn.subtitle')}</p>
       </div>
 
       <div className="mx-auto max-w-md px-5 mt-4 space-y-3">
@@ -228,12 +231,12 @@ const Learn = () => {
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-bold text-foreground">{mod.title}</h3>
+                  <h3 className="text-sm font-bold text-foreground">{getModuleTitle(mod)}</h3>
                   {completed && <Check size={14} className="text-success" />}
                 </div>
                 <div className="mt-0.5 flex items-center gap-2">
                   <span className="xp-badge text-[10px]"><Zap size={10} /> +{mod.xp} XP</span>
-                  <span className="text-[10px] text-muted-foreground">3 questions</span>
+                  <span className="text-[10px] text-muted-foreground">3 {t(lang, 'learn.questions')}</span>
                 </div>
               </div>
               <ChevronRight size={18} className="text-muted-foreground" />
