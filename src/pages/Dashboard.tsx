@@ -108,7 +108,12 @@ const Dashboard = () => {
         {/* Future ready */}
         <div className="rounded-2xl border border-border bg-muted/50 p-3 text-center animate-fade-in">
           <p className="text-[10px] text-muted-foreground">
-            🔗 Connected to NPS ecosystem (API-ready) • Scalable for national rollout
+            <div className="mt-4 text-center">
+  <div className="w-24 h-px bg-gray-200 mx-auto mb-2"></div>
+  <p className="text-[11px] text-gray-400 tracking-wide">
+    Developed by YellowSense Technologies Pvt Ltd
+  </p>
+</div>
           </p>
         </div>
       </div>

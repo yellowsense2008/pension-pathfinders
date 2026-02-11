@@ -1,73 +1,121 @@
-# Welcome to your Lovable project
+🚀 Pension Pathfinders
 
-## Project info
+Gamified NPS Engagement Platform for Young Professionals
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+⸻
 
-## How can I edit this code?
+📌 Problem Statement
 
-There are several ways of editing your application.
+Young workers in India often do not actively engage with the National Pension System (NPS) due to:
+	•	Pension planning feeling distant and unrelatable
+	•	Complex financial terminology
+	•	Low motivation for consistent contributions
+	•	Limited financial literacy in early career stages
+	•	Lack of interactive and personalized platforms
 
-**Use Lovable**
+As a result, many young earners delay retirement planning and miss the long-term benefits of compounding.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+⸻
 
-Changes made via Lovable will be committed automatically to this repo.
+🎯 Our Solution
 
-**Use your preferred IDE**
+Pension Pathfinders is a mobile-first gamified digital platform that transforms pension planning into an engaging, interactive, and habit-forming experience.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+We turn retirement planning into a life-progress game.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+The platform uses:
+	•	🎮 Gamification mechanics
+	•	📊 Progress tracking
+	•	🏆 Leaderboards
+	•	🎯 Missions & challenges
+	•	📚 Bite-sized financial education
+	•	📈 Retirement simulation tools
 
-Follow these steps:
+to drive sustained engagement and positive financial behavior.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+⸻
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+🧩 Key Features
 
-# Step 3: Install the necessary dependencies.
-npm i
+🎮 Gamification Layer
+	•	XP-based progression system
+	•	Levels & achievement badges
+	•	Contribution streak tracking
+	•	Daily and weekly pension missions
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+📊 Progress & Simulation
+	•	Retirement corpus projection
+	•	Compounding visualizer
+	•	Monthly contribution tracking
+	•	Goal-setting mechanism
 
-**Edit a file directly in GitHub**
+📚 Learning Modules
+	•	Simplified NPS explanations
+	•	Tier I vs Tier II breakdown
+	•	Tax benefits overview
+	•	Interactive micro-quizzes
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+🏆 Social Engagement
+	•	Leaderboards
+	•	Age-group ranking
+	•	Monthly savings challenges
 
-**Use GitHub Codespaces**
+⸻
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+📱 Product Flow
+	1.	User completes onboarding (age, income, contribution)
+	2.	Dashboard shows personalized retirement projection
+	3.	User completes missions & quizzes to earn XP
+	4.	Streaks & milestones unlock achievements
+	5.	Simulator visualizes long-term growth
+	6.	Leaderboards encourage consistent engagement
 
-## What technologies are used for this project?
+⸻
 
-This project is built with:
+🧠 Behavioral Design Principles
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+The platform integrates:
+	•	Habit loops (streak mechanics)
+	•	Micro-rewards (XP & badges)
+	•	Progress psychology
+	•	Future-self visualization
+	•	Social comparison for motivation
+	•	Goal commitment system
 
-## How can I deploy this project?
+⸻
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+🛠 Tech Stack
+	•	React + TypeScript
+	•	Vite
+	•	Tailwind CSS
+	•	Component-driven architecture
+	•	Mobile-first responsive design
 
-## Can I connect a custom domain to my Lovable project?
+⸻
 
-Yes, you can!
+🔐 Scalability & Ecosystem Readiness
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+The prototype is built to be:
+	•	API-ready for NPS ecosystem integration
+	•	Secure & compliance-ready architecture
+	•	Scalable for nationwide rollout
+	•	Multilingual-ready (English / Hindi)
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+⸻
+
+🎥 Hackathon Proof of Concept
+
+This prototype demonstrates:
+	•	Increased awareness of NPS benefits
+	•	Improved user engagement through gamification
+	•	Behavior-driven motivation for regular contributions
+	•	Readiness for real-world deployment
+
+⸻
+
+📈 Future Enhancements
+	•	Real NPS API integration
+	•	Wallet-based micro-investments
+	•	AI-driven personalized pension coaching
+	•	Employer-linked pension challenges
+	•	Push notifications for contribution reminders
