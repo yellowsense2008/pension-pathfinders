@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { useUser } from '@/contexts/UserContext';
 import BottomNav from '@/components/BottomNav';
 import { Trophy, Medal, Flame, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { t } from '@/lib/translations';
 
 const leaderboardData = [
   { rank: 1, name: 'Priya S.', xp: 4200, streak: 8, age: 24 },
@@ -18,6 +20,8 @@ const ageGroups = ['All', '21–25', '26–30', '31–35'] as const;
 
 const Leaderboard = () => {
   const navigate = useNavigate();
+  const { user } = useUser();
+  const lang = user.language;
   const [tab, setTab] = useState<'xp' | 'contributors'>('xp');
   const [ageFilter, setAgeFilter] = useState<typeof ageGroups[number]>('All');
 
@@ -39,25 +43,25 @@ const Leaderboard = () => {
     <div className="min-h-screen bg-background pb-24">
       <div className="gradient-hero px-5 pb-5 pt-8">
         <button onClick={() => navigate('/dashboard')} className="mb-2 flex items-center gap-1 text-sm text-primary-foreground/70">
-          <ArrowLeft size={16} /> Back
+          <ArrowLeft size={16} /> {t(lang, 'leaderboard.back')}
         </button>
         <h1 className="font-display text-xl font-bold text-primary-foreground flex items-center gap-2">
-          <Trophy size={22} /> Leaderboard
+          <Trophy size={22} /> {t(lang, 'leaderboard.title')}
         </h1>
       </div>
 
       <div className="mx-auto max-w-md px-5 mt-4 space-y-4">
         {/* Tabs */}
         <div className="flex gap-2">
-          {(['xp', 'contributors'] as const).map(t => (
+          {(['xp', 'contributors'] as const).map(tb => (
             <button
-              key={t}
-              onClick={() => setTab(t)}
+              key={tb}
+              onClick={() => setTab(tb)}
               className={`flex-1 rounded-full py-2 text-xs font-semibold capitalize transition-all ${
-                tab === t ? 'gradient-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                tab === tb ? 'gradient-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
               }`}
             >
-              {t === 'xp' ? '⚡ XP Ranking' : '💰 Top Contributors'}
+              {tb === 'xp' ? t(lang, 'leaderboard.xpRanking') : t(lang, 'leaderboard.topContributors')}
             </button>
           ))}
         </div>
@@ -72,7 +76,7 @@ const Leaderboard = () => {
                 ageFilter === ag ? 'bg-accent text-accent-foreground' : 'bg-muted text-muted-foreground'
               }`}
             >
-              {ag === 'All' ? 'All Ages' : ag}
+              {ag === 'All' ? t(lang, 'leaderboard.allAges') : ag}
             </button>
           ))}
         </div>
@@ -93,7 +97,7 @@ const Leaderboard = () => {
               </div>
               <div className="flex-1">
                 <p className={`text-sm font-bold ${person.isUser ? 'text-primary' : 'text-foreground'}`}>
-                  {person.name} {person.isUser && '(You)'}
+                  {person.isUser ? t(lang, 'leaderboard.you') : person.name} {person.isUser && `(${t(lang, 'leaderboard.you')})`}
                 </p>
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] text-muted-foreground">{person.xp.toLocaleString()} XP</span>
