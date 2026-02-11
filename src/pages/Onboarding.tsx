@@ -116,9 +116,12 @@ const Onboarding = () => {
             <ArrowRight size={18} className="ml-2" />
           </Button>
 
-          <p className="text-center text-[10px] text-muted-foreground">
-            🔒 Secure & compliant architecture ready • API-ready for NPS ecosystem
-          </p>
+          <div className="mt-4 text-center">
+         <div className="w-20 h-px bg-gray-200 mx-auto mb-2"></div>
+         <p className="text-[11px] text-gray-400 tracking-wide">
+            Developed by YellowSense Technologies Pvt Ltd
+        </p>
+          </div>
         </div>
       </div>
     </div>
