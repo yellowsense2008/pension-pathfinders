@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Globe } from 'lucide-react';
+import { t } from '@/lib/translations';
 import heroImage from '@/assets/onboarding-hero.png';
 
 const Onboarding = () => {
@@ -11,7 +12,15 @@ const Onboarding = () => {
   const [age, setAge] = useState(25);
   const [income, setIncome] = useState(30000);
   const [contribution, setContribution] = useState(2000);
-  const [language, setLanguage] = useState<'en' | 'hi'>('en');
+  const [language, setLanguage] = useState<'en' | 'hi'>(() => {
+    const saved = localStorage.getItem('pensionquest-language');
+    return (saved === 'hi' ? 'hi' : 'en');
+  });
+
+  const handleLanguageChange = (lang: 'en' | 'hi') => {
+    setLanguage(lang);
+    localStorage.setItem('pensionquest-language', lang);
+  };
 
   const handleSubmit = () => {
     const updated = {
@@ -23,6 +32,7 @@ const Onboarding = () => {
       onboarded: true,
     };
     localStorage.setItem('pensionquest-user', JSON.stringify(updated));
+    localStorage.setItem('pensionquest-language', language);
     setUser(updated);
     navigate('/dashboard');
   };
@@ -35,10 +45,10 @@ const Onboarding = () => {
           <img src={heroImage} alt="PensionQuest hero" className="h-40 w-40 animate-fade-in rounded-3xl object-cover" />
         </div>
         <h1 className="mb-2 font-display text-2xl font-bold text-primary-foreground animate-fade-in">
-          Start Your Retirement Game Early
+          {t(language, 'onboarding.title')}
         </h1>
         <p className="text-sm text-primary-foreground/80 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-          Turn pension planning into an exciting journey
+          {t(language, 'onboarding.subtitle')}
         </p>
       </div>
 
@@ -49,13 +59,13 @@ const Onboarding = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Globe size={16} />
-              Language
+              {t(language, 'onboarding.language')}
             </div>
             <div className="flex rounded-full bg-muted p-0.5">
               {(['en', 'hi'] as const).map(lang => (
                 <button
                   key={lang}
-                  onClick={() => setLanguage(lang)}
+                  onClick={() => handleLanguageChange(lang)}
                   className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-all ${
                     language === lang
                       ? 'gradient-primary text-primary-foreground'
@@ -70,21 +80,21 @@ const Onboarding = () => {
 
           {/* Age */}
           <div>
-            <label className="mb-2 block text-sm font-semibold text-foreground">Your Age</label>
+            <label className="mb-2 block text-sm font-semibold text-foreground">{t(language, 'onboarding.age')}</label>
             <input
               type="range"
-              min={21}
-              max={35}
+              min={18}
+              max={70}
               value={age}
               onChange={e => setAge(Number(e.target.value))}
               className="w-full accent-primary"
             />
-            <div className="mt-1 text-center font-display text-2xl font-bold text-primary">{age} years</div>
+            <div className="mt-1 text-center font-display text-2xl font-bold text-primary">{age} {t(language, 'onboarding.years')}</div>
           </div>
 
           {/* Income */}
           <div>
-            <label className="mb-2 block text-sm font-semibold text-foreground">Monthly Income (₹)</label>
+            <label className="mb-2 block text-sm font-semibold text-foreground">{t(language, 'onboarding.income')}</label>
             <input
               type="number"
               value={income}
@@ -96,8 +106,8 @@ const Onboarding = () => {
 
           {/* NPS Contribution */}
           <div>
-            <label className="mb-1 block text-sm font-semibold text-foreground">Monthly NPS Contribution (₹)</label>
-            <p className="mb-2 text-xs text-muted-foreground">Optional — you can set this later</p>
+            <label className="mb-1 block text-sm font-semibold text-foreground">{t(language, 'onboarding.contribution')}</label>
+            <p className="mb-2 text-xs text-muted-foreground">{t(language, 'onboarding.contributionHint')}</p>
             <input
               type="number"
               value={contribution}
@@ -112,12 +122,12 @@ const Onboarding = () => {
             onClick={handleSubmit}
             className="w-full gradient-primary text-primary-foreground rounded-xl py-6 text-base font-bold shadow-glow animate-pulse-glow"
           >
-            Start My Pension Journey
+            {t(language, 'onboarding.cta')}
             <ArrowRight size={18} className="ml-2" />
           </Button>
 
           <p className="text-center text-[10px] text-muted-foreground">
-            🔒 Secure & compliant architecture ready • API-ready for NPS ecosystem
+            {t(language, 'onboarding.footer')}
           </p>
         </div>
       </div>
