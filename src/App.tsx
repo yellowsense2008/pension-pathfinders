@@ -12,6 +12,7 @@ import Learn from "./pages/Learn";
 import Simulator from "./pages/Simulator";
 import Rewards from "./pages/Rewards";
 import Leaderboard from "./pages/Leaderboard";
+import Snapshot from "./pages/Snapshot";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="/simulator" element={<Simulator />} />
             <Route path="/rewards" element={<Rewards />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/snapshot" element={<Snapshot />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
