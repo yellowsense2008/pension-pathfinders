@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import BottomNav from '@/components/BottomNav';
+import PageTransition from '@/components/PageTransition';
+import FloatingXP from '@/components/FloatingXP';
 import { BookOpen, Check, ChevronRight, Zap, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { t, TranslationKey } from '@/lib/translations';
+import { motion } from 'framer-motion';
 
 interface Module {
   id: string;
@@ -103,6 +106,7 @@ const Learn = () => {
   const [quizStep, setQuizStep] = useState(-1);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [score, setScore] = useState(0);
+  const [showXP, setShowXP] = useState(false);
   const lang = user.language;
 
   const handleStartQuiz = () => setQuizStep(0);
@@ -123,10 +127,14 @@ const Learn = () => {
     } else {
       addXP(activeModule.xp);
       completeModule(activeModule.id);
-      setActiveModule(null);
-      setQuizStep(-1);
-      setScore(0);
-      setSelectedAnswer(null);
+      setShowXP(true);
+      setTimeout(() => {
+        setShowXP(false);
+        setActiveModule(null);
+        setQuizStep(-1);
+        setScore(0);
+        setSelectedAnswer(null);
+      }, 1200);
     }
   };
 
@@ -144,109 +152,138 @@ const Learn = () => {
     const q = inQuiz ? activeModule.quiz[quizStep] : null;
 
     return (
-      <div className="min-h-screen bg-background pb-24">
-        <div className="gradient-primary px-5 pb-5 pt-8">
-          <button onClick={handleBack} className="mb-2 flex items-center gap-1 text-sm text-primary-foreground/70">
-            <ArrowLeft size={16} /> {t(lang, 'learn.back')}
-          </button>
-          <h1 className="font-display text-xl font-bold text-primary-foreground">
-            {activeModule.emoji} {getModuleTitle(activeModule)}
-          </h1>
-        </div>
+      <PageTransition>
+        <div className="min-h-screen bg-background pb-24">
+          <div className="gradient-primary px-5 pb-5 pt-8">
+            <button onClick={handleBack} className="mb-2 flex items-center gap-1 text-sm text-primary-foreground/70 tap-scale">
+              <ArrowLeft size={16} /> {t(lang, 'learn.back')}
+            </button>
+            <h1 className="font-display text-xl font-bold text-primary-foreground relative">
+              {activeModule.emoji} {getModuleTitle(activeModule)}
+              <FloatingXP amount={activeModule.xp} show={showXP} />
+            </h1>
+          </div>
 
-        <div className="mx-auto max-w-md px-5 mt-4 space-y-4">
-          {!inQuiz ? (
-            <>
-              {activeModule.content.map((text, i) => (
-                <div key={i} className="game-card animate-fade-in-up" style={{ animationDelay: `${0.1 * i}s` }}>
-                  <p className="text-sm leading-relaxed text-foreground">{text}</p>
+          <div className="mx-auto max-w-md px-5 mt-4 space-y-4">
+            {!inQuiz ? (
+              <>
+                {activeModule.content.map((text, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 * i, duration: 0.3 }}
+                    className="game-card"
+                  >
+                    <p className="text-sm leading-relaxed text-foreground">{text}</p>
+                  </motion.div>
+                ))}
+                <motion.div whileTap={{ scale: 0.97 }}>
+                  <Button onClick={handleStartQuiz} className="w-full gradient-accent text-secondary-foreground rounded-xl py-5 font-bold">
+                    {t(lang, 'learn.takeQuiz')}
+                  </Button>
+                </motion.div>
+              </>
+            ) : q ? (
+              <motion.div
+                key={quizStep}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="mb-4 text-center">
+                  <span className="text-xs text-muted-foreground">{t(lang, 'learn.question')} {quizStep + 1} {t(lang, 'learn.of')} {activeModule.quiz.length}</span>
+                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
+                    <motion.div
+                      className="h-full gradient-xp"
+                      initial={{ width: `${(quizStep / activeModule.quiz.length) * 100}%` }}
+                      animate={{ width: `${((quizStep + 1) / activeModule.quiz.length) * 100}%` }}
+                      transition={{ duration: 0.4 }}
+                    />
+                  </div>
                 </div>
-              ))}
-              <Button onClick={handleStartQuiz} className="w-full gradient-accent text-secondary-foreground rounded-xl py-5 font-bold">
-                {t(lang, 'learn.takeQuiz')}
-              </Button>
-            </>
-          ) : q ? (
-            <div className="animate-scale-in">
-              <div className="mb-4 text-center">
-                <span className="text-xs text-muted-foreground">{t(lang, 'learn.question')} {quizStep + 1} {t(lang, 'learn.of')} {activeModule.quiz.length}</span>
-                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
-                  <div className="h-full gradient-xp transition-all" style={{ width: `${((quizStep + 1) / activeModule.quiz.length) * 100}%` }} />
-                </div>
-              </div>
-              <h2 className="mb-4 font-display text-lg font-bold text-foreground">{q.question}</h2>
-              <div className="space-y-3">
-                {q.options.map((opt, i) => {
-                  const isSelected = selectedAnswer === i;
-                  const isCorrect = i === q.answer;
-                  const showResult = selectedAnswer !== null;
+                <h2 className="mb-4 font-display text-lg font-bold text-foreground">{q.question}</h2>
+                <div className="space-y-3">
+                  {q.options.map((opt, i) => {
+                    const isSelected = selectedAnswer === i;
+                    const isCorrect = i === q.answer;
+                    const showResult = selectedAnswer !== null;
 
-                  return (
-                    <button
-                      key={i}
-                      onClick={() => handleAnswer(i)}
-                      className={`w-full game-card text-left text-sm font-medium transition-all ${
-                        showResult && isCorrect ? 'border-2 border-success bg-success/10' :
-                        showResult && isSelected && !isCorrect ? 'border-2 border-destructive bg-destructive/10' :
-                        'hover:shadow-elevated'
-                      }`}
-                    >
-                      {opt}
-                    </button>
-                  );
-                })}
-              </div>
-              {selectedAnswer !== null && (
-                <Button onClick={handleNext} className="mt-4 w-full gradient-primary text-primary-foreground rounded-xl py-5 font-bold animate-fade-in">
-                  {quizStep < activeModule.quiz.length - 1 ? t(lang, 'learn.nextQuestion') : `${t(lang, 'learn.complete')} (+${activeModule.xp} XP) 🎉`}
-                </Button>
-              )}
-            </div>
-          ) : null}
+                    return (
+                      <motion.button
+                        key={i}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => handleAnswer(i)}
+                        className={`w-full game-card text-left text-sm font-medium transition-all ${
+                          showResult && isCorrect ? 'border-2 border-success bg-success/10' :
+                          showResult && isSelected && !isCorrect ? 'border-2 border-destructive bg-destructive/10' :
+                          'hover:shadow-elevated'
+                        }`}
+                      >
+                        {opt}
+                      </motion.button>
+                    );
+                  })}
+                </div>
+                {selectedAnswer !== null && (
+                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+                    <Button onClick={handleNext} className="mt-4 w-full gradient-primary text-primary-foreground rounded-xl py-5 font-bold tap-scale">
+                      {quizStep < activeModule.quiz.length - 1 ? t(lang, 'learn.nextQuestion') : `${t(lang, 'learn.complete')} (+${activeModule.xp} XP) 🎉`}
+                    </Button>
+                  </motion.div>
+                )}
+              </motion.div>
+            ) : null}
+          </div>
+          <BottomNav />
         </div>
-        <BottomNav />
-      </div>
+      </PageTransition>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="gradient-primary px-5 pb-5 pt-8">
-        <h1 className="mb-1 font-display text-xl font-bold text-primary-foreground">{t(lang, 'learn.title')}</h1>
-        <p className="text-xs text-primary-foreground/70">{t(lang, 'learn.subtitle')}</p>
-      </div>
+    <PageTransition>
+      <div className="min-h-screen bg-background pb-24">
+        <div className="gradient-primary px-5 pb-5 pt-8">
+          <h1 className="mb-1 font-display text-xl font-bold text-primary-foreground">{t(lang, 'learn.title')}</h1>
+          <p className="text-xs text-primary-foreground/70">{t(lang, 'learn.subtitle')}</p>
+        </div>
 
-      <div className="mx-auto max-w-md px-5 mt-4 space-y-3">
-        {modules.map((mod, i) => {
-          const completed = user.completedModules.includes(mod.id);
-          return (
-            <button
-              key={mod.id}
-              onClick={() => setActiveModule(mod)}
-              className="game-card w-full text-left animate-fade-in-up flex items-center gap-3"
-              style={{ animationDelay: `${0.05 * i}s` }}
-            >
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-muted text-2xl flex-shrink-0">
-                {mod.emoji}
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-bold text-foreground">{getModuleTitle(mod)}</h3>
-                  {completed && <Check size={14} className="text-success" />}
+        <div className="mx-auto max-w-md px-5 mt-4 space-y-3">
+          {modules.map((mod, i) => {
+            const completed = user.completedModules.includes(mod.id);
+            return (
+              <motion.button
+                key={mod.id}
+                onClick={() => setActiveModule(mod)}
+                whileTap={{ scale: 0.97 }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.05 * i, duration: 0.3 }}
+                className="game-card w-full text-left flex items-center gap-3"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-muted text-2xl flex-shrink-0">
+                  {mod.emoji}
                 </div>
-                <div className="mt-0.5 flex items-center gap-2">
-                  <span className="xp-badge text-[10px]"><Zap size={10} /> +{mod.xp} XP</span>
-                  <span className="text-[10px] text-muted-foreground">3 {t(lang, 'learn.questions')}</span>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-foreground">{getModuleTitle(mod)}</h3>
+                    {completed && <Check size={14} className="text-success" />}
+                  </div>
+                  <div className="mt-0.5 flex items-center gap-2">
+                    <span className="xp-badge text-[10px]"><Zap size={10} /> +{mod.xp} XP</span>
+                    <span className="text-[10px] text-muted-foreground">3 {t(lang, 'learn.questions')}</span>
+                  </div>
                 </div>
-              </div>
-              <ChevronRight size={18} className="text-muted-foreground" />
-            </button>
-          );
-        })}
-      </div>
+                <ChevronRight size={18} className="text-muted-foreground" />
+              </motion.button>
+            );
+          })}
+        </div>
 
-      <BottomNav />
-    </div>
+        <BottomNav />
+      </div>
+    </PageTransition>
   );
 };
 

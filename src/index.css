@@ -181,6 +181,23 @@
   }
 }
 
+/* Streak glow animation */
+@keyframes streak-glow {
+  0%, 100% { box-shadow: 0 0 0 0 hsl(15 90% 55% / 0); }
+  50% { box-shadow: 0 0 12px 2px hsl(15 90% 55% / 0.2); }
+}
+.animate-streak-glow {
+  animation: streak-glow 5s ease-in-out infinite;
+}
+
+/* Tap scale for buttons */
+.tap-scale {
+  transition: transform 0.15s ease;
+}
+.tap-scale:active {
+  transform: scale(0.97);
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 4px;
