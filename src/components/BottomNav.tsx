@@ -1,4 +1,4 @@
-import { Home, Target, BookOpen, LineChart, Trophy } from 'lucide-react';
+import { Home, Target, BookOpen, LineChart, Trophy, User } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
 import { t } from '@/lib/translations';
@@ -9,6 +9,7 @@ const navItems = [
   { to: '/learn', icon: BookOpen, labelKey: 'nav.learn' as const },
   { to: '/simulator', icon: LineChart, labelKey: 'nav.simulate' as const },
   { to: '/rewards', icon: Trophy, labelKey: 'nav.rewards' as const },
+  { to: '/snapshot', icon: User, labelKey: 'nav.snapshot' as const },
 ];
 
 const BottomNav = () => {

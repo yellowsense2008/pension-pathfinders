@@ -121,6 +121,21 @@ export const translations = {
     'leaderboard.topContributors': '💰 Top Contributors',
     'leaderboard.allAges': 'All Ages',
     'leaderboard.you': 'You',
+
+    // Snapshot
+    'snapshot.title': 'Future Me',
+    'snapshot.subtitle': 'Your Retirement Snapshot',
+    'snapshot.corpus': 'Projected Corpus at Age 60',
+    'snapshot.monthlyPension': 'Estimated Monthly Pension',
+    'snapshot.adjustContribution': 'Adjust Monthly Contribution',
+    'snapshot.basic': 'Basic Lifestyle',
+    'snapshot.comfortable': 'Comfortable Lifestyle',
+    'snapshot.premium': 'Premium Lifestyle',
+    'snapshot.extraImpact': '+₹1,000/month today could mean {amount} more at retirement',
+    'snapshot.aheadMessage': 'You are ahead of most people who start after 30! 🎉',
+    'snapshot.lateMessage': 'Starting 5 years later could reduce your corpus by {amount}.',
+    'snapshot.pastRetirement': 'You are past retirement age. Snapshot is based on current values.',
+    'nav.snapshot': 'Snapshot',
   },
   hi: {
     // Onboarding
@@ -244,6 +259,21 @@ export const translations = {
     'leaderboard.topContributors': '💰 शीर्ष योगदानकर्ता',
     'leaderboard.allAges': 'सभी उम्र',
     'leaderboard.you': 'आप',
+
+    // Snapshot
+    'snapshot.title': 'भविष्य का मैं',
+    'snapshot.subtitle': 'आपकी सेवानिवृत्ति की झलक',
+    'snapshot.corpus': '60 वर्ष की आयु में अनुमानित कोष',
+    'snapshot.monthlyPension': 'अनुमानित मासिक पेंशन',
+    'snapshot.adjustContribution': 'मासिक योगदान समायोजित करें',
+    'snapshot.basic': 'बुनियादी जीवनशैली',
+    'snapshot.comfortable': 'आरामदायक जीवनशैली',
+    'snapshot.premium': 'प्रीमियम जीवनशैली',
+    'snapshot.extraImpact': '+₹1,000/माह आज का मतलब सेवानिवृत्ति पर {amount} अधिक',
+    'snapshot.aheadMessage': 'आप 30 के बाद शुरू करने वालों से आगे हैं! 🎉',
+    'snapshot.lateMessage': '5 साल देर से शुरू करने पर आपका कोष {amount} कम हो सकता है।',
+    'snapshot.pastRetirement': 'आप सेवानिवृत्ति की आयु पार कर चुके हैं। स्नैपशॉट वर्तमान मूल्यों पर आधारित है।',
+    'nav.snapshot': 'भविष्य',
   },
 } as const;
 
