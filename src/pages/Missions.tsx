@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import BottomNav from '@/components/BottomNav';
 import XPProgressBar from '@/components/XPProgressBar';
 import PageTransition from '@/components/PageTransition';
 import FloatingXP from '@/components/FloatingXP';
-import { Check, Zap, Clock, Star } from 'lucide-react';
+import { Check, Zap, Clock, Star, Undo2 } from 'lucide-react';
 import { t, TranslationKey } from '@/lib/translations';
 import { motion } from 'framer-motion';
 
@@ -14,15 +14,16 @@ interface Mission {
   descKey: string;
   xp: number;
   type: 'daily' | 'weekly';
+  maintainsStreak: boolean;
 }
 
 const missions: Mission[] = [
-  { id: 'mission-1', titleKey: 'learn-compounding', descKey: 'learn-compounding', xp: 50, type: 'daily' },
-  { id: 'mission-2', titleKey: 'nps-tier-quiz', descKey: 'nps-tier-quiz', xp: 100, type: 'daily' },
-  { id: 'mission-3', titleKey: 'simulate-growth', descKey: 'simulate-growth', xp: 75, type: 'daily' },
-  { id: 'mission-4', titleKey: 'log-contribution', descKey: 'log-contribution', xp: 150, type: 'weekly' },
-  { id: 'mission-5', titleKey: 'tax-benefits', descKey: 'tax-benefits', xp: 80, type: 'weekly' },
-  { id: 'mission-6', titleKey: 'share-friend', descKey: 'share-friend', xp: 200, type: 'weekly' },
+  { id: 'mission-1', titleKey: 'learn-compounding', descKey: 'learn-compounding', xp: 50, type: 'daily', maintainsStreak: true },
+  { id: 'mission-2', titleKey: 'nps-tier-quiz', descKey: 'nps-tier-quiz', xp: 100, type: 'daily', maintainsStreak: true },
+  { id: 'mission-3', titleKey: 'simulate-growth', descKey: 'simulate-growth', xp: 75, type: 'daily', maintainsStreak: false },
+  { id: 'mission-4', titleKey: 'log-contribution', descKey: 'log-contribution', xp: 150, type: 'weekly', maintainsStreak: true },
+  { id: 'mission-5', titleKey: 'tax-benefits', descKey: 'tax-benefits', xp: 80, type: 'weekly', maintainsStreak: false },
+  { id: 'mission-6', titleKey: 'share-friend', descKey: 'share-friend', xp: 200, type: 'weekly', maintainsStreak: false },
 ];
 
 const filterKeys: Record<string, TranslationKey> = {
@@ -32,18 +33,37 @@ const filterKeys: Record<string, TranslationKey> = {
 };
 
 const Missions = () => {
-  const { user, addXP, completeMission } = useUser();
+  const { user, addXP, completeMission, undoMission } = useUser();
   const [celebrating, setCelebrating] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'daily' | 'weekly'>('all');
+  const [undoable, setUndoable] = useState<string | null>(null);
+  const [undoTimer, setUndoTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
   const lang = user.language;
 
-  const handleComplete = (mission: Mission) => {
+  const handleComplete = useCallback((mission: Mission) => {
     if (user.completedMissions.includes(mission.id)) return;
     setCelebrating(mission.id);
-    addXP(mission.xp);
+    addXP(mission.xp, `mission:${mission.id}`);
     completeMission(mission.id);
+
+    // Allow undo for 10 seconds
+    setUndoable(mission.id);
+    if (undoTimer) clearTimeout(undoTimer);
+    const timer = setTimeout(() => setUndoable(null), 10000);
+    setUndoTimer(timer);
+
     setTimeout(() => setCelebrating(null), 1500);
-  };
+  }, [user.completedMissions, addXP, completeMission, undoTimer]);
+
+  const handleUndo = useCallback((mission: Mission) => {
+    undoMission(mission.id);
+    setUndoable(null);
+    if (undoTimer) clearTimeout(undoTimer);
+  }, [undoMission, undoTimer]);
+
+  useEffect(() => {
+    return () => { if (undoTimer) clearTimeout(undoTimer); };
+  }, [undoTimer]);
 
   const filtered = missions.filter(m => filter === 'all' || m.type === filter);
 
@@ -78,6 +98,7 @@ const Missions = () => {
           {filtered.map((mission, i) => {
             const completed = user.completedMissions.includes(mission.id);
             const isCelebrating = celebrating === mission.id;
+            const canUndo = undoable === mission.id && completed;
 
             return (
               <div
@@ -109,6 +130,9 @@ const Missions = () => {
                         {mission.type === 'daily' ? <Clock size={10} className="inline mr-0.5" /> : <Star size={10} className="inline mr-0.5" />}
                         {t(lang, filterKeys[mission.type])}
                       </span>
+                      {mission.maintainsStreak && (
+                        <span className="streak-badge text-[9px]">🔥 Streak</span>
+                      )}
                     </div>
                     <p className="mt-0.5 text-xs text-muted-foreground">
                       {t(lang, `missions.missionDescs.${mission.descKey}` as TranslationKey)}
@@ -129,6 +153,18 @@ const Missions = () => {
                   >
                     <span className="text-sm font-bold text-success">🎉 +{mission.xp} {t(lang, 'missions.xpEarned')}</span>
                   </motion.div>
+                )}
+
+                {canUndo && (
+                  <motion.button
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    onClick={() => handleUndo(mission)}
+                    className="mt-2 flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground tap-scale"
+                  >
+                    <Undo2 size={12} />
+                    {t(lang, 'missions.undo')}
+                  </motion.button>
                 )}
               </div>
             );

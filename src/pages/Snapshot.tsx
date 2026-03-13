@@ -6,15 +6,15 @@ import PageTransition from '@/components/PageTransition';
 import AnimatedNumber from '@/components/AnimatedNumber';
 import { Slider } from '@/components/ui/slider';
 import { TrendingUp, Award, ArrowUp } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 const Snapshot = () => {
-  const { user } = useUser();
+  const { user, pension } = useUser();
   const lang = user.language;
   const [contribution, setContribution] = useState(user.monthlyContribution || 2000);
   const prevBadgeRef = useRef('');
 
-  const annualRate = 0.08;
+  const annualRate = pension.expectedReturn;
   const monthlyRate = annualRate / 12;
   const retirementAge = 60;
   const yearsLeft = Math.max(0, retirementAge - user.age);
@@ -22,15 +22,15 @@ const Snapshot = () => {
   const pastRetirement = user.age >= 60;
 
   const corpus = useMemo(() => {
-    if (pastRetirement || totalMonths <= 0) return contribution * totalMonths || 0;
+    if (pastRetirement || totalMonths <= 0 || contribution <= 0) return 0;
     return Math.round(contribution * ((Math.pow(1 + monthlyRate, totalMonths) - 1) / monthlyRate));
   }, [contribution, totalMonths, monthlyRate, pastRetirement]);
 
-  const monthlyPension = useMemo(() => Math.round((corpus * 0.04) / 12), [corpus]);
+  const monthlyPension = useMemo(() => corpus > 0 ? Math.round((corpus * 0.04) / 12) : 0, [corpus]);
 
   const lateMonths = Math.max(0, (yearsLeft - 5)) * 12;
   const lateCorpus = useMemo(() => {
-    if (lateMonths <= 0) return 0;
+    if (lateMonths <= 0 || contribution <= 0) return 0;
     return Math.round(contribution * ((Math.pow(1 + monthlyRate, lateMonths) - 1) / monthlyRate));
   }, [contribution, lateMonths, monthlyRate]);
   const corpusDiff = corpus - lateCorpus;
@@ -39,6 +39,17 @@ const Snapshot = () => {
     if (pastRetirement || totalMonths <= 0) return 0;
     return Math.round((contribution + 1000) * ((Math.pow(1 + monthlyRate, totalMonths) - 1) / monthlyRate)) - corpus;
   }, [contribution, totalMonths, monthlyRate, corpus, pastRetirement]);
+
+  // Retirement confidence score (0-100)
+  const confidenceScore = useMemo(() => {
+    if (user.monthlyIncome <= 0 || contribution <= 0) return 0;
+    const targetContribution = 0.1 * user.monthlyIncome;
+    return Math.min(100, Math.max(0, Math.round(
+      (contribution / targetContribution) * 50 +
+      (yearsLeft / 35) * 30 +
+      (monthlyPension / user.monthlyIncome) * 20
+    )));
+  }, [contribution, user.monthlyIncome, yearsLeft, monthlyPension]);
 
   const lifestyleBadge = corpus >= 5000000 ? 'premium' : corpus >= 2000000 ? 'comfortable' : 'basic';
   const [badgeChanged, setBadgeChanged] = useState(false);
@@ -64,6 +75,8 @@ const Snapshot = () => {
     return `₹${val.toLocaleString('en-IN')}`;
   };
 
+  const hasData = user.onboarded && contribution > 0;
+
   return (
     <PageTransition>
       <div className="min-h-screen bg-background pb-24">
@@ -78,44 +91,68 @@ const Snapshot = () => {
         </div>
 
         <div className="mx-auto max-w-lg space-y-4 px-4 -mt-4">
+          {!hasData && (
+            <div className="game-card text-center py-6">
+              <p className="text-sm text-muted-foreground">{t(lang, 'dashboard.emptyState')}</p>
+            </div>
+          )}
+
           {pastRetirement && (
             <div className="game-card border border-secondary/30 text-center">
               <p className="text-sm text-muted-foreground">{t(lang, 'snapshot.pastRetirement')}</p>
             </div>
           )}
 
-          {/* Corpus Card */}
-          <div className="game-card text-center">
-            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              {t(lang, 'snapshot.corpus')}
-            </p>
-            <p className="font-display text-4xl font-bold text-foreground mt-2">
-              <AnimatedNumber value={corpus} formatter={formatCurrency} />
-            </p>
-            <div className="mt-3 flex items-center justify-center gap-2">
-              <motion.span
-                key={lifestyleBadge}
-                animate={badgeChanged ? { scale: [1, 1.15, 1] } : {}}
-                transition={{ duration: 0.4 }}
-                className={`rounded-full px-3 py-1 text-xs font-semibold ${badgeStyles[lifestyleBadge]}`}
-              >
-                {t(lang, `snapshot.${lifestyleBadge}` as any)}
-              </motion.span>
-            </div>
-          </div>
+          {hasData && (
+            <>
+              {/* Corpus Card */}
+              <div className="game-card text-center">
+                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  {t(lang, 'snapshot.corpus')}
+                </p>
+                <p className="font-display text-4xl font-bold text-foreground mt-2">
+                  <AnimatedNumber value={corpus} formatter={formatCurrency} />
+                </p>
+                <div className="mt-3 flex items-center justify-center gap-2">
+                  <motion.span
+                    key={lifestyleBadge}
+                    animate={badgeChanged ? { scale: [1, 1.15, 1] } : {}}
+                    transition={{ duration: 0.4 }}
+                    className={`rounded-full px-3 py-1 text-xs font-semibold ${badgeStyles[lifestyleBadge]}`}
+                  >
+                    {t(lang, `snapshot.${lifestyleBadge}` as any)}
+                  </motion.span>
+                </div>
+              </div>
 
-          {/* Pension Card */}
-          <div className="game-card flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl gradient-primary">
-              <TrendingUp className="h-6 w-6 text-primary-foreground" />
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">{t(lang, 'snapshot.monthlyPension')}</p>
-              <p className="font-display text-xl font-bold text-foreground">
-                <AnimatedNumber value={monthlyPension} formatter={formatCurrency} />
-              </p>
-            </div>
-          </div>
+              {/* Pension Card */}
+              <div className="game-card flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl gradient-primary">
+                  <TrendingUp className="h-6 w-6 text-primary-foreground" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">{t(lang, 'snapshot.monthlyPension')}</p>
+                  <p className="font-display text-xl font-bold text-foreground">
+                    <AnimatedNumber value={monthlyPension} formatter={formatCurrency} />
+                  </p>
+                </div>
+              </div>
+
+              {/* Retirement Confidence */}
+              <div className="game-card text-center">
+                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2">
+                  {t(lang, 'snapshot.confidence')}
+                </p>
+                <p className="font-display text-3xl font-bold text-primary">
+                  <AnimatedNumber value={confidenceScore} />
+                  <span className="text-lg text-muted-foreground">/100</span>
+                </p>
+                <p className="mt-2 text-xs text-muted-foreground italic">
+                  {t(lang, 'snapshot.futureYou')}
+                </p>
+              </div>
+            </>
+          )}
 
           {/* Contribution Slider */}
           <div className="game-card space-y-4">
@@ -125,16 +162,16 @@ const Snapshot = () => {
             <Slider
               value={[contribution]}
               onValueChange={([v]) => setContribution(v)}
-              min={1000}
+              min={0}
               max={50000}
               step={500}
             />
             <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>₹1,000</span>
+              <span>₹0</span>
               <span className="font-semibold text-foreground">₹{contribution.toLocaleString('en-IN')}</span>
               <span>₹50,000</span>
             </div>
-            {!pastRetirement && (
+            {!pastRetirement && hasData && (
               <div className="flex items-center gap-2 rounded-xl bg-primary/10 p-3 text-xs text-primary">
                 <ArrowUp className="h-4 w-4" />
                 <span>
@@ -145,7 +182,7 @@ const Snapshot = () => {
           </div>
 
           {/* Emotional Hook */}
-          {!pastRetirement && (
+          {!pastRetirement && hasData && (
             <div className="game-card flex items-start gap-3">
               <Award className="mt-0.5 h-5 w-5 text-secondary" />
               <div className="space-y-1">

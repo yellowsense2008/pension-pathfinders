@@ -30,6 +30,16 @@ const Onboarding = () => {
       monthlyContribution: contribution,
       language,
       onboarded: true,
+      // Reset financial tracking for fresh onboarding
+      totalContributions: 0,
+      xp: 0,
+      level: 1,
+      streak: 0,
+      lastActiveDate: new Date().toISOString(),
+      completedMissions: [] as string[],
+      completedModules: [] as string[],
+      unlockedBadges: [] as string[],
+      xpLedger: [] as any[],
     };
     localStorage.setItem('pensionquest-user', JSON.stringify(updated));
     localStorage.setItem('pensionquest-language', language);
@@ -127,8 +137,8 @@ const Onboarding = () => {
           </Button>
 
            <div className="mt-4 text-center">
-          <div className="w-20 h-px bg-gray-200 mx-auto mb-2"></div>
-        <p className="text-[11px] text-gray-400 tracking-wide">
+          <div className="w-20 h-px bg-border mx-auto mb-2"></div>
+        <p className="text-[11px] text-muted-foreground tracking-wide">
          Developed by YellowSense Technologies Pvt Ltd
        </p>
           </div>
