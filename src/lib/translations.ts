@@ -156,7 +156,23 @@ export const translations = {
     'snapshot.aheadMessage': 'You are ahead of most people who start after 30! 🎉',
     'snapshot.lateMessage': 'Starting 5 years later could reduce your corpus by {amount}.',
     'snapshot.pastRetirement': 'You are past retirement age. Snapshot is based on current values.',
+    'snapshot.confidence': 'Retirement Confidence',
+    'snapshot.futureYou': 'Future you will thank you.',
     'nav.snapshot': 'Snapshot',
+
+    // Dashboard extras
+    'dashboard.emptyState': 'Start your pension journey to see projections',
+    'dashboard.days': 'Days 🔥',
+    'nudge.zeroContribution': 'You haven\'t set a contribution yet. Start small to build your retirement.',
+
+    // Missions extras
+    'missions.undo': 'Undo',
+
+    // Simulator extras
+    'simulator.pensionGap': 'Pension Gap Analysis',
+    'simulator.projected': 'Projected',
+    'simulator.desired': 'Desired (50%)',
+    'simulator.gap': 'Gap',
   },
   hi: {
     // Onboarding
@@ -315,7 +331,20 @@ export const translations = {
     'snapshot.aheadMessage': 'आप 30 के बाद शुरू करने वालों से आगे हैं! 🎉',
     'snapshot.lateMessage': '5 साल देर से शुरू करने पर आपका कोष {amount} कम हो सकता है।',
     'snapshot.pastRetirement': 'आप सेवानिवृत्ति की आयु पार कर चुके हैं। स्नैपशॉट वर्तमान मूल्यों पर आधारित है।',
+    'snapshot.confidence': 'सेवानिवृत्ति आत्मविश्वास',
+    'snapshot.futureYou': 'भविष्य का आप आपको धन्यवाद देगा।',
     'nav.snapshot': 'भविष्य',
+
+    'dashboard.emptyState': 'अनुमान देखने के लिए अपनी पेंशन यात्रा शुरू करें',
+    'dashboard.days': 'दिन 🔥',
+    'nudge.zeroContribution': 'आपने अभी तक कोई योगदान सेट नहीं किया है। अपनी सेवानिवृत्ति शुरू करें।',
+
+    'missions.undo': 'पूर्ववत करें',
+
+    'simulator.pensionGap': 'पेंशन अंतर विश्लेषण',
+    'simulator.projected': 'अनुमानित',
+    'simulator.desired': 'वांछित (50%)',
+    'simulator.gap': 'अंतर',
   },
 } as const;
 

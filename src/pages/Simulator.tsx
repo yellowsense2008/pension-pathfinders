@@ -11,23 +11,26 @@ import { t } from '@/lib/translations';
 import { motion } from 'framer-motion';
 
 const Simulator = () => {
-  const { user, addXP } = useUser();
+  const { user, pension, addXP } = useUser();
   const lang = user.language;
+
+  // Initialize from onboarding state
   const [contribution, setContribution] = useState(user.monthlyContribution || 3000);
-  const [returnRate, setReturnRate] = useState(10);
-  const [years, setYears] = useState(60 - user.age);
+  const [returnRate, setReturnRate] = useState(8);
+  const [years, setYears] = useState(pension.yearsToRetirement || Math.max(5, 60 - user.age));
   const [simulated, setSimulated] = useState(false);
   const [showXP, setShowXP] = useState(false);
 
+  // Recalculate graph data from slider inputs (deterministic SIP formula)
   const data = useMemo(() => {
     const points = [];
     const monthlyRate = returnRate / 100 / 12;
     for (let y = 0; y <= years; y++) {
       const months = y * 12;
       const invested = contribution * months;
-      const corpus = months === 0 ? 0 : Math.round(
-        contribution * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate) * (1 + monthlyRate)
-      );
+      const corpus = months === 0 || contribution <= 0
+        ? 0
+        : Math.round(contribution * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate));
       points.push({
         year: user.age + y,
         invested: Math.round(invested / 100000),
@@ -40,13 +43,24 @@ const Simulator = () => {
   const finalCorpus = data[data.length - 1]?.corpus || 0;
   const totalInvested = data[data.length - 1]?.invested || 0;
 
+  // Pension gap: compare projected pension vs desired (50% of income)
+  const desiredMonthlyPension = user.monthlyIncome > 0 ? Math.round(user.monthlyIncome * 0.5) : 0;
+  const projectedPension = finalCorpus > 0 ? Math.round((finalCorpus * 100000 * 0.04) / 12) : 0;
+  const pensionGap = Math.max(0, desiredMonthlyPension - projectedPension);
+
   const handleSimulate = () => {
     if (!simulated) {
-      addXP(75);
+      addXP(75, 'simulator');
       setSimulated(true);
       setShowXP(true);
       setTimeout(() => setShowXP(false), 1200);
     }
+  };
+
+  const formatCurrency = (val: number) => {
+    if (val >= 10000000) return `₹${(val / 10000000).toFixed(1)} Cr`;
+    if (val >= 100000) return `₹${(val / 100000).toFixed(1)}L`;
+    return `₹${val.toLocaleString('en-IN')}`;
   };
 
   return (
@@ -130,6 +144,35 @@ const Simulator = () => {
               </p>
             </div>
           </div>
+
+          {/* Pension Gap Indicator */}
+          {user.monthlyIncome > 0 && (
+            <div className="game-card animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                {t(lang, 'simulator.pensionGap')}
+              </h3>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] text-muted-foreground">{t(lang, 'simulator.projected')}</p>
+                  <p className="font-display text-sm font-bold text-primary">
+                    <AnimatedNumber value={projectedPension} formatter={formatCurrency} />
+                  </p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[10px] text-muted-foreground">{t(lang, 'simulator.desired')}</p>
+                  <p className="font-display text-sm font-bold text-foreground">
+                    {formatCurrency(desiredMonthlyPension)}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] text-muted-foreground">{t(lang, 'simulator.gap')}</p>
+                  <p className={`font-display text-sm font-bold ${pensionGap > 0 ? 'text-destructive' : 'text-success'}`}>
+                    {pensionGap > 0 ? `-${formatCurrency(pensionGap)}` : '✓'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* CTA */}
           <motion.div whileTap={{ scale: 0.97 }} className="relative">
