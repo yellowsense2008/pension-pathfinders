@@ -156,7 +156,23 @@ export const translations = {
     'snapshot.aheadMessage': 'You are ahead of most people who start after 30! 🎉',
     'snapshot.lateMessage': 'Starting 5 years later could reduce your corpus by {amount}.',
     'snapshot.pastRetirement': 'You are past retirement age. Snapshot is based on current values.',
+    'snapshot.confidence': 'Retirement Confidence',
+    'snapshot.futureYou': 'Future you will thank you.',
     'nav.snapshot': 'Snapshot',
+
+    // Dashboard extras
+    'dashboard.emptyState': 'Start your pension journey to see projections',
+    'dashboard.days': 'Days 🔥',
+    'nudge.zeroContribution': 'You haven\'t set a contribution yet. Start small to build your retirement.',
+
+    // Missions extras
+    'missions.undo': 'Undo',
+
+    // Simulator extras
+    'simulator.pensionGap': 'Pension Gap Analysis',
+    'simulator.projected': 'Projected',
+    'simulator.desired': 'Desired (50%)',
+    'simulator.gap': 'Gap',
   },
   hi: {
     // Onboarding
