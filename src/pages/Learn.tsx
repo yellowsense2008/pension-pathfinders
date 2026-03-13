@@ -125,7 +125,7 @@ const Learn = () => {
       setQuizStep(s => s + 1);
       setSelectedAnswer(null);
     } else {
-      addXP(activeModule.xp);
+      addXP(activeModule.xp, `learn:${activeModule.id}`);
       completeModule(activeModule.id);
       setShowXP(true);
       setTimeout(() => {
