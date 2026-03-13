@@ -4,14 +4,24 @@ import XPProgressBar from '@/components/XPProgressBar';
 import BottomNav from '@/components/BottomNav';
 import PageTransition from '@/components/PageTransition';
 import AnimatedNumber from '@/components/AnimatedNumber';
-import { Target, Brain, Trophy, LineChart, Flame, TrendingUp, IndianRupee, CalendarDays, LogOut } from 'lucide-react';
-import { t } from '@/lib/translations';
+import DataCard, { DataCardSkeleton, DataCardError } from '@/components/DataCard';
+import RetirementReadiness from '@/components/RetirementReadiness';
+import NudgeCard from '@/components/NudgeCard';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { fetchContributions, fetchProjection, fetchStreak, fetchNudges } from '@/services/api';
+import { Target, Brain, Trophy, LineChart, Flame, TrendingUp, IndianRupee, CalendarDays, LogOut, RefreshCw, Clock } from 'lucide-react';
+import { t, TranslationKey } from '@/lib/translations';
 import { motion } from 'framer-motion';
 
 const Dashboard = () => {
   const { user, setUser } = useUser();
   const navigate = useNavigate();
   const lang = user.language;
+
+  const contributions = useApiQuery(['contributions'], fetchContributions);
+  const projection = useApiQuery(['projection'], fetchProjection);
+  const streak = useApiQuery(['streak'], fetchStreak);
+  const nudges = useApiQuery(['nudges'], fetchNudges);
 
   const retirementAge = 60;
   const yearsLeft = Math.max(retirementAge - user.age, 0);
@@ -35,6 +45,19 @@ const Dashboard = () => {
     { label: t(lang, 'dashboard.viewRewards'), icon: Trophy, color: 'gradient-hero', path: '/rewards' },
     { label: t(lang, 'dashboard.simulateGrowth'), icon: LineChart, color: 'gradient-primary', path: '/simulator' },
   ];
+
+  const formatCurrency = (val: number) => {
+    if (val >= 10000000) return `₹${(val / 10000000).toFixed(1)} Cr`;
+    if (val >= 100000) return `₹${(val / 100000).toFixed(1)}L`;
+    return `₹${val.toLocaleString('en-IN')}`;
+  };
+
+  const readinessCategoryLabels: Record<string, TranslationKey> = {
+    low: 'dashboard.readiness.low',
+    moderate: 'dashboard.readiness.moderate',
+    good: 'dashboard.readiness.good',
+    excellent: 'dashboard.readiness.excellent',
+  };
 
   return (
     <PageTransition>
@@ -65,9 +88,72 @@ const Dashboard = () => {
         </div>
 
         <div className="mx-auto max-w-md px-5 -mt-2 space-y-4">
-          {/* Stats row */}
-          <div className="grid grid-cols-2 gap-3 animate-fade-in">
-            <div className="game-card text-center">
+          {/* Real Savings Tracker */}
+          <DataCard
+            loading={contributions.isLoading}
+            error={contributions.error}
+            onRetry={() => contributions.refetch()}
+          >
+            <div className="game-card space-y-3 animate-fade-in">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  {t(lang, 'dashboard.savingsTracker')}
+                </h2>
+                <button
+                  onClick={() => contributions.refetch()}
+                  className={`rounded-full p-1.5 text-muted-foreground hover:text-foreground tap-scale ${contributions.isFetching ? 'animate-spin' : ''}`}
+                >
+                  <RefreshCw size={12} />
+                </button>
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="text-center">
+                  <p className="text-[10px] text-muted-foreground">{t(lang, 'dashboard.totalContributions')}</p>
+                  <p className="font-display text-sm font-bold text-foreground">
+                    <AnimatedNumber value={contributions.data?.totalContributions ?? user.totalContributions} formatter={formatCurrency} />
+                  </p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[10px] text-muted-foreground">{t(lang, 'dashboard.currentCorpus')}</p>
+                  <p className="font-display text-sm font-bold text-primary">
+                    <AnimatedNumber value={contributions.data?.currentCorpus ?? 0} formatter={formatCurrency} />
+                  </p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[10px] text-muted-foreground">{t(lang, 'dashboard.estPension')}</p>
+                  <p className="font-display text-sm font-bold text-foreground">
+                    <AnimatedNumber value={contributions.data?.estimatedPension ?? 0} formatter={formatCurrency} />
+                  </p>
+                </div>
+              </div>
+            </div>
+          </DataCard>
+
+          {/* Stats row: Streak + Behaviour */}
+          <div className="grid grid-cols-2 gap-3">
+            <DataCard
+              loading={streak.isLoading}
+              error={streak.error}
+              onRetry={() => streak.refetch()}
+            >
+              <div className="game-card text-center animate-streak-glow">
+                <div className="mb-1 flex items-center justify-center gap-1.5">
+                  <Flame size={16} className="text-streak" />
+                  <span className="text-xs text-muted-foreground">{t(lang, 'dashboard.streak')}</span>
+                </div>
+                <p className="font-display text-xl font-bold text-foreground">
+                  {streak.data?.currentStreak ?? user.streak} {t(lang, 'dashboard.months')}
+                </p>
+                {streak.data?.lastActivityDate && (
+                  <div className="mt-1.5 flex items-center justify-center gap-1 text-[10px] text-muted-foreground">
+                    <Clock size={10} />
+                    {t(lang, 'dashboard.lastActivity')}: {new Date(streak.data.lastActivityDate).toLocaleDateString()}
+                  </div>
+                )}
+              </div>
+            </DataCard>
+
+            <div className="game-card text-center animate-fade-in">
               <div className="mb-1 flex items-center justify-center gap-1.5">
                 <IndianRupee size={16} className="text-primary" />
                 <span className="text-xs text-muted-foreground">{t(lang, 'dashboard.totalSaved')}</span>
@@ -76,16 +162,46 @@ const Dashboard = () => {
                 ₹<AnimatedNumber value={user.totalContributions} />
               </p>
             </div>
-            <div className="game-card text-center animate-streak-glow">
-              <div className="mb-1 flex items-center justify-center gap-1.5">
-                <Flame size={16} className="text-streak" />
-                <span className="text-xs text-muted-foreground">{t(lang, 'dashboard.streak')}</span>
-              </div>
-              <p className="font-display text-xl font-bold text-foreground">
-                {user.streak} {t(lang, 'dashboard.months')}
-              </p>
-            </div>
           </div>
+
+          {/* Smart Nudge Engine */}
+          {nudges.data && nudges.data.length > 0 && (
+            <div className="space-y-2 animate-fade-in">
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                {t(lang, 'dashboard.smartNudges')}
+              </h2>
+              {nudges.data.map((nudge) => {
+                let message = t(lang, nudge.messageKey as TranslationKey);
+                if (nudge.messageParams) {
+                  Object.entries(nudge.messageParams).forEach(([k, v]) => {
+                    message = message.replace(`{${k}}`, v);
+                  });
+                }
+                const actionLabel = nudge.actionKey ? t(lang, nudge.actionKey as TranslationKey) : undefined;
+                return <NudgeCard key={nudge.id} nudge={nudge} message={message} actionLabel={actionLabel} />;
+              })}
+            </div>
+          )}
+
+          {/* Retirement Readiness Score */}
+          <DataCard
+            loading={projection.isLoading}
+            error={projection.error}
+            onRetry={() => projection.refetch()}
+          >
+            <div className="animate-fade-in">
+              <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                {t(lang, 'dashboard.readinessTitle')}
+              </h2>
+              {projection.data && (
+                <RetirementReadiness
+                  score={projection.data.readinessScore}
+                  category={projection.data.readinessCategory}
+                  categoryLabel={t(lang, readinessCategoryLabels[projection.data.readinessCategory])}
+                />
+              )}
+            </div>
+          </DataCard>
 
           {/* Retirement projection */}
           <div className="game-card gradient-card animate-fade-in" style={{ animationDelay: '0.1s' }}>
@@ -129,7 +245,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Future ready */}
+          {/* Footer */}
           <div className="rounded-2xl border border-border bg-muted/50 p-3 text-center animate-fade-in">
             <div className="mt-4 text-center">
               <div className="w-24 h-px bg-border mx-auto mb-2"></div>
