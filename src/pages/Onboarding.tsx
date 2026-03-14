@@ -10,8 +10,8 @@ const Onboarding = () => {
   const { setUser, user } = useUser();
   const navigate = useNavigate();
   const [age, setAge] = useState(25);
-  const [income, setIncome] = useState(30000);
-  const [contribution, setContribution] = useState(2000);
+  const [income, setIncome] = useState<number | ''>('');
+  const [contribution, setContribution] = useState<number | ''>('');
   const [language, setLanguage] = useState<'en' | 'hi'>(() => {
     const saved = localStorage.getItem('pensionquest-language');
     return (saved === 'hi' ? 'hi' : 'en');
@@ -26,8 +26,8 @@ const Onboarding = () => {
     const updated = {
       ...user,
       age,
-      monthlyIncome: income,
-      monthlyContribution: contribution,
+      monthlyIncome: Number(income) || 0,
+      monthlyContribution: Number(contribution) || 0,
       language,
       onboarded: true,
       // Reset financial tracking for fresh onboarding
@@ -108,9 +108,9 @@ const Onboarding = () => {
             <input
               type="number"
               value={income}
-              onChange={e => setIncome(Number(e.target.value))}
+              onChange={e => setIncome(e.target.value === '' ? '' : Number(e.target.value))}
               className="w-full rounded-xl border border-input bg-background px-4 py-3 text-foreground outline-none focus:ring-2 focus:ring-primary/30"
-              placeholder="₹30,000"
+              placeholder="e.g. 30000"
             />
           </div>
 
@@ -121,9 +121,9 @@ const Onboarding = () => {
             <input
               type="number"
               value={contribution}
-              onChange={e => setContribution(Number(e.target.value))}
+              onChange={e => setContribution(e.target.value === '' ? '' : Number(e.target.value))}
               className="w-full rounded-xl border border-input bg-background px-4 py-3 text-foreground outline-none focus:ring-2 focus:ring-primary/30"
-              placeholder="₹2,000"
+              placeholder="e.g. 2000"
             />
           </div>
 

@@ -5,6 +5,7 @@ import PageTransition from '@/components/PageTransition';
 import AnimatedNumber from '@/components/AnimatedNumber';
 import FloatingXP from '@/components/FloatingXP';
 import CareerGrowthSimulator from '@/components/CareerGrowthSimulator';
+import CareerPathGraph from '@/components/CareerPathGraph';
 import { Button } from '@/components/ui/button';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { IndianRupee, TrendingUp, Target, Zap, Percent, Hash } from 'lucide-react';
@@ -246,6 +247,14 @@ const Simulator = () => {
               </ResponsiveContainer>
             </div>
           </div>
+
+          {/* Life Path Graph — multiline career trajectory */}
+          <CareerPathGraph
+            age={user.age}
+            monthlyContribution={contribution}
+            returnRate={returnRate}
+            years={years}
+          />
 
           {/* Results */}
           <div className="grid grid-cols-2 gap-3 animate-fade-in-up" style={{ animationDelay: '0.15s' }}>

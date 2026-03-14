@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import { t, TranslationKey } from '@/lib/translations';
 import BottomNav from '@/components/BottomNav';
@@ -6,13 +6,35 @@ import PageTransition from '@/components/PageTransition';
 import AnimatedNumber from '@/components/AnimatedNumber';
 import LifestyleOutcome from '@/components/LifestyleOutcome';
 import { Slider } from '@/components/ui/slider';
-import { TrendingUp, ArrowUp, Sparkles } from 'lucide-react';
+import { ArrowUp, Sparkles } from 'lucide-react';
+import { fetchBackendProjection, BackendProjectionResponse } from '@/services/api';
 import { motion } from 'framer-motion';
+
+const SLIDER_MAX = 50000;
+
+// Segmented mapping: slider % → lifestyle_category (instant, no API wait)
+type LifestyleCategory = 'luxury' | 'comfortable' | 'basic' | 'struggle';
+
+function sliderPctToCategory(pct: number): LifestyleCategory {
+  if (pct >= 70) return 'luxury';
+  if (pct >= 45) return 'comfortable';
+  if (pct >= 20) return 'basic';
+  return 'struggle';
+}
 
 const Snapshot = () => {
   const { user, pension } = useUser();
   const lang = user.language;
   const [contribution, setContribution] = useState(user.monthlyContribution || 2000);
+  const [backendData, setBackendData] = useState<BackendProjectionResponse | null>(null);
+
+  useEffect(() => {
+    fetchBackendProjection({
+      age: user.age,
+      monthly_contribution: user.monthlyContribution,
+      monthly_income: user.monthlyIncome,
+    }).then(setBackendData).catch(() => setBackendData(null));
+  }, [user.age, user.monthlyContribution, user.monthlyIncome]);
 
   const annualRate = pension.expectedReturn;
   const monthlyRate = annualRate / 12;
@@ -33,15 +55,30 @@ const Snapshot = () => {
     return Math.round((contribution + 1000) * ((Math.pow(1 + monthlyRate, totalMonths) - 1) / monthlyRate)) - corpus;
   }, [contribution, totalMonths, monthlyRate, corpus, pastRetirement]);
 
+  // Slider-driven live category — declared here so confidenceScore can depend on it
+  const sliderPct = (contribution / SLIDER_MAX) * 100;
+  const sliderCategory = sliderPctToCategory(sliderPct);
+
   const confidenceScore = useMemo(() => {
-    if (user.monthlyIncome <= 0 || contribution <= 0) return 0;
-    const targetContribution = 0.1 * user.monthlyIncome;
-    return Math.min(100, Math.max(0, Math.round(
-      (contribution / targetContribution) * 50 +
-      (yearsLeft / 35) * 30 +
-      (monthlyPension / user.monthlyIncome) * 20
-    )));
-  }, [contribution, user.monthlyIncome, yearsLeft, monthlyPension]);
+    const lifestyleWeight: Record<ReturnType<typeof sliderPctToCategory>, number> = {
+      struggle:    0.4,
+      basic:       0.6,
+      comfortable: 0.8,
+      luxury:      1.0,
+    };
+
+    const corpusScore        = Math.min(corpus / 20000000, 1);            // 2 Cr target
+    const contributionScore  = Math.min(contribution / 20000, 1);         // ₹20k/mo target
+    const incomeScore        = Math.min(user.monthlyIncome / 100000, 1);  // ₹1L/mo target
+
+    const raw =
+      (corpusScore * 0.5 +
+       contributionScore * 0.3 +
+       incomeScore * 0.2) *
+      lifestyleWeight[sliderCategory];
+
+    return Math.min(100, Math.max(5, Math.round(raw * 100)));
+  }, [corpus, contribution, user.monthlyIncome, sliderCategory]);
 
   const formatCurrency = (val: number) => {
     if (val >= 10000000) return `₹${(val / 10000000).toFixed(2)} Cr`;
@@ -58,6 +95,14 @@ const Snapshot = () => {
     if (user.age < 40) return 'story.midCareer';
     return 'story.experiencedPro';
   }, [user.age]);
+
+  // Segment colour stops (left-edge % of SLIDER_MAX)
+  const segments = [
+    { label: 'Struggle', colour: '#ef4444', start: 0, end: 20 },
+    { label: 'Basic',    colour: '#f97316', start: 20, end: 45 },
+    { label: 'Comfort',  colour: '#22c55e', start: 45, end: 70 },
+    { label: 'Luxury',   colour: '#eab308', start: 70, end: 100 },
+  ];
 
   return (
     <PageTransition>
@@ -88,7 +133,12 @@ const Snapshot = () => {
           {hasData && (
             <>
               {/* Lifestyle Outcome Visualization */}
-              <LifestyleOutcome corpus={corpus} monthlyPension={monthlyPension} />
+              <LifestyleOutcome
+                corpus={corpus}
+                monthlyPension={monthlyPension}
+                backendData={backendData}
+                sliderCategory={sliderCategory}
+              />
 
               {/* Corpus + Pension Cards */}
               <div className="grid grid-cols-2 gap-3">
@@ -110,16 +160,70 @@ const Snapshot = () => {
                 </div>
               </div>
 
-              {/* Retirement Confidence */}
-              <div className="game-card text-center">
-                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2">
-                  {t(lang, 'snapshot.confidence')}
-                </p>
-                <p className="font-display text-3xl font-bold text-primary">
-                  <AnimatedNumber value={confidenceScore} />
-                  <span className="text-lg text-muted-foreground">/100</span>
-                </p>
-              </div>
+              {/* Retirement Confidence — animated radial meter */}
+              {(() => {
+                const R = 40;
+                const circ = 2 * Math.PI * R;
+                const pct  = confidenceScore / 100;
+                const dash = pct * circ;
+
+                const meterColor =
+                  confidenceScore >= 70 ? '#22c55e'
+                  : confidenceScore >= 40 ? '#f59e0b'
+                  : '#ef4444';
+
+                return (
+                  <motion.div
+                    key={confidenceScore}
+                    className="game-card flex flex-col items-center gap-2 py-4"
+                    animate={{ scale: [1, 1.03, 1] }}
+                    transition={{ duration: 0.5, ease: 'easeInOut' }}
+                  >
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      {t(lang, 'snapshot.confidence')}
+                    </p>
+                    <div className="relative flex items-center justify-center" style={{ width: 108, height: 108 }}>
+                      <svg width="108" height="108" style={{ transform: 'rotate(-90deg)' }}>
+                        {/* Track */}
+                        <circle
+                          cx="54" cy="54" r={R}
+                          fill="none"
+                          stroke="hsl(160,10%,90%)"
+                          strokeWidth="10"
+                        />
+                        {/* Animated arc */}
+                        <motion.circle
+                          cx="54" cy="54" r={R}
+                          fill="none"
+                          stroke={meterColor}
+                          strokeWidth="10"
+                          strokeLinecap="round"
+                          strokeDasharray={`${circ}`}
+                          initial={{ strokeDashoffset: circ }}
+                          animate={{
+                            strokeDashoffset: circ - dash,
+                            stroke: meterColor,
+                          }}
+                          transition={{ duration: 0.8, ease: 'easeOut' }}
+                          style={{
+                            filter: `drop-shadow(0 0 6px ${meterColor}88)`,
+                          }}
+                        />
+                      </svg>
+                      {/* Score in centre */}
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <span
+                          className="font-display text-2xl font-bold tabular-nums"
+                          style={{ color: meterColor }}
+                        >
+                          {confidenceScore}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">/100</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })()}
 
               {/* Emotional Narrative */}
               <motion.div
@@ -146,13 +250,63 @@ const Snapshot = () => {
             <label className="text-sm font-semibold text-foreground">
               {t(lang, 'snapshot.adjustContribution')}
             </label>
-            <Slider
-              value={[contribution]}
-              onValueChange={([v]) => setContribution(v)}
-              min={0}
-              max={50000}
-              step={500}
-            />
+
+            {/* Segmented colour-zone track */}
+            <div className="relative">
+              <div className="flex h-1.5 w-full rounded-full overflow-hidden mb-3">
+                {segments.map((seg) => (
+                  <div
+                    key={seg.label}
+                    style={{
+                      width: `${seg.end - seg.start}%`,
+                      backgroundColor: seg.colour,
+                      opacity: sliderCategory === seg.label.toLowerCase()
+                        || (seg.label === 'Comfort' && sliderCategory === 'comfortable')
+                        || (seg.label === 'Struggle' && sliderCategory === 'struggle')
+                        || (seg.label === 'Basic' && sliderCategory === 'basic')
+                        || (seg.label === 'Luxury' && sliderCategory === 'luxury')
+                        ? 1 : 0.3,
+                      transition: 'opacity 0.2s',
+                    }}
+                  />
+                ))}
+              </div>
+
+              <Slider
+                value={[contribution]}
+                onValueChange={([v]) => setContribution(v)}
+                min={0}
+                max={SLIDER_MAX}
+                step={500}
+              />
+
+              {/* Tick labels */}
+              <div className="flex justify-between mt-2">
+                {segments.map((seg) => (
+                  <span
+                    key={seg.label}
+                    className="text-[10px] font-medium transition-all duration-200"
+                    style={{
+                      color: sliderCategory === seg.label.toLowerCase()
+                        || (seg.label === 'Comfort' && sliderCategory === 'comfortable')
+                        || (seg.label === 'Struggle' && sliderCategory === 'struggle')
+                        || (seg.label === 'Basic' && sliderCategory === 'basic')
+                        || (seg.label === 'Luxury' && sliderCategory === 'luxury')
+                        ? seg.colour : '#94a3b8',
+                      fontWeight: sliderCategory === seg.label.toLowerCase()
+                        || (seg.label === 'Comfort' && sliderCategory === 'comfortable')
+                        || (seg.label === 'Struggle' && sliderCategory === 'struggle')
+                        || (seg.label === 'Basic' && sliderCategory === 'basic')
+                        || (seg.label === 'Luxury' && sliderCategory === 'luxury')
+                        ? 700 : 400,
+                    }}
+                  >
+                    {seg.label}
+                  </span>
+                ))}
+              </div>
+            </div>
+
             <div className="flex items-center justify-between text-xs text-muted-foreground">
               <span>₹0</span>
               <span className="font-semibold text-foreground">₹{contribution.toLocaleString('en-IN')}</span>

@@ -28,6 +28,25 @@ export interface ProjectionData {
   readinessCategory: 'low' | 'moderate' | 'good' | 'excellent';
 }
 
+export interface BackendProjectionResponse {
+  projected_corpus: number;
+  lifestyle_category: 'luxury' | 'comfortable' | 'basic' | 'struggle';
+  confidence_score: number;
+  message: string;
+}
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
+export async function fetchBackendProjection(input: object): Promise<BackendProjectionResponse> {
+  const response = await fetch(`${API_BASE}/projection`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  });
+  if (!response.ok) throw new Error(`PROJECTION_ERROR:${response.status}`);
+  return response.json();
+}
+
 export interface StreakData {
   currentStreak: number;
   lastActivityDate: string;
