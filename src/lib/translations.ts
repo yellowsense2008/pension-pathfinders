@@ -173,6 +173,54 @@ export const translations = {
     'simulator.projected': 'Projected',
     'simulator.desired': 'Desired (50%)',
     'simulator.gap': 'Gap',
+    'simulator.savingsMode': 'Savings Mode',
+    'simulator.fixedAmount': 'Fixed Amount',
+    'simulator.percentOfSalary': '% of Salary',
+    'simulator.savingsPercent': 'Savings Percentage',
+    'simulator.percentHint': 'Your savings grow as your career grows.',
+    'simulator.conservative': 'Safe',
+    'simulator.balanced': 'Balanced',
+    'simulator.aggressive': 'Growth',
+
+    // Career Growth
+    'career.title': 'Career Growth Simulator',
+    'career.mode.aggressive': 'Aggressive Growth',
+    'career.mode.stable': 'Stable Corporate',
+    'career.mode.late-starter': 'Late Starter',
+    'career.mode.unstable': 'Unstable Career',
+    'career.salaryTimeline': 'Salary & Savings Timeline',
+    'career.milestones': 'Salary Milestones',
+    'career.addMilestone': 'Add',
+    'career.savingsGrowMessage': 'Your savings automatically grow with your career! 📈',
+
+    // Lifestyle Outcomes
+    'lifestyle.struggling.title': 'Struggling Future',
+    'lifestyle.struggling.meme': 'Ramen budget, forever. 😬',
+    'lifestyle.struggling.context': 'Limited savings, dependent on others for healthcare and housing.',
+    'lifestyle.struggling.narrative': 'Your current path leads to financial stress. Small changes today can rewrite this story.',
+
+    'lifestyle.basic.title': 'Basic Future',
+    'lifestyle.basic.meme': 'Simple life, no frills. 🏠',
+    'lifestyle.basic.context': 'Modest home, basic healthcare, occasional outings.',
+    'lifestyle.basic.narrative': 'You\'re building a foundation. Increase your savings to unlock more freedom.',
+
+    'lifestyle.comfortable.title': 'Comfortable Future',
+    'lifestyle.comfortable.meme': 'Living the good life! ✨',
+    'lifestyle.comfortable.context': 'Nice home, travel once a year, quality healthcare, hobbies.',
+    'lifestyle.comfortable.narrative': 'Your future self is smiling. You\'re on the right track!',
+
+    'lifestyle.premium.title': 'Premium Future',
+    'lifestyle.premium.meme': 'Boss mode activated. 🏆',
+    'lifestyle.premium.context': 'Premium home, international travel, best healthcare, financial freedom.',
+    'lifestyle.premium.narrative': 'Your current career path leads to a premium retirement lifestyle.',
+
+    // Emotional Storytelling
+    'story.earlyStarter': 'Starting in your early 20s? You\'re ahead of 90% of your peers! 🚀',
+    'story.primeYears': 'Your prime earning years are ahead. Every rupee saved now works 3x harder.',
+    'story.midCareer': 'Mid-career is the perfect time to accelerate. Your experience = higher savings power.',
+    'story.experiencedPro': 'Experience is your superpower. Strategic contributions still make a huge impact.',
+    'story.simulatorMessage': 'Small monthly habits shape lifelong financial freedom.',
+    'story.dashboardMessage': 'Your future self depends on today\'s choices.',
   },
   hi: {
     // Onboarding
@@ -345,6 +393,51 @@ export const translations = {
     'simulator.projected': 'अनुमानित',
     'simulator.desired': 'वांछित (50%)',
     'simulator.gap': 'अंतर',
+    'simulator.savingsMode': 'बचत मोड',
+    'simulator.fixedAmount': 'निश्चित राशि',
+    'simulator.percentOfSalary': 'वेतन का %',
+    'simulator.savingsPercent': 'बचत प्रतिशत',
+    'simulator.percentHint': 'आपकी बचत आपके करियर के साथ बढ़ती है।',
+    'simulator.conservative': 'सुरक्षित',
+    'simulator.balanced': 'संतुलित',
+    'simulator.aggressive': 'वृद्धि',
+
+    'career.title': 'करियर ग्रोथ सिमुलेटर',
+    'career.mode.aggressive': 'आक्रामक वृद्धि',
+    'career.mode.stable': 'स्थिर कॉर्पोरेट',
+    'career.mode.late-starter': 'देर से शुरुआत',
+    'career.mode.unstable': 'अस्थिर करियर',
+    'career.salaryTimeline': 'वेतन और बचत टाइमलाइन',
+    'career.milestones': 'वेतन मील के पत्थर',
+    'career.addMilestone': 'जोड़ें',
+    'career.savingsGrowMessage': 'आपकी बचत आपके करियर के साथ अपने आप बढ़ती है! 📈',
+
+    'lifestyle.struggling.title': 'संघर्षपूर्ण भविष्य',
+    'lifestyle.struggling.meme': 'रामेन बजट, हमेशा। 😬',
+    'lifestyle.struggling.context': 'सीमित बचत, स्वास्थ्य और आवास के लिए दूसरों पर निर्भर।',
+    'lifestyle.struggling.narrative': 'आपका वर्तमान रास्ता आर्थिक तनाव की ओर है। आज के छोटे बदलाव इसे बदल सकते हैं।',
+
+    'lifestyle.basic.title': 'बुनियादी भविष्य',
+    'lifestyle.basic.meme': 'सरल जीवन, कोई तामझाम नहीं। 🏠',
+    'lifestyle.basic.context': 'साधारण घर, बुनियादी स्वास्थ्य सेवा, कभी-कभी बाहर जाना।',
+    'lifestyle.basic.narrative': 'आप नींव बना रहे हैं। अधिक स्वतंत्रता के लिए बचत बढ़ाएं।',
+
+    'lifestyle.comfortable.title': 'आरामदायक भविष्य',
+    'lifestyle.comfortable.meme': 'अच्छी ज़िंदगी! ✨',
+    'lifestyle.comfortable.context': 'अच्छा घर, साल में एक बार यात्रा, अच्छी स्वास्थ्य सेवा।',
+    'lifestyle.comfortable.narrative': 'आपका भविष्य का रूप मुस्कुरा रहा है। आप सही रास्ते पर हैं!',
+
+    'lifestyle.premium.title': 'प्रीमियम भविष्य',
+    'lifestyle.premium.meme': 'बॉस मोड चालू। 🏆',
+    'lifestyle.premium.context': 'शानदार घर, अंतरराष्ट्रीय यात्रा, सर्वश्रेष्ठ स्वास्थ्य सेवा।',
+    'lifestyle.premium.narrative': 'आपका करियर पथ प्रीमियम सेवानिवृत्ति जीवनशैली की ओर ले जाता है।',
+
+    'story.earlyStarter': 'अपने शुरुआती 20 में शुरू? आप 90% साथियों से आगे हैं! 🚀',
+    'story.primeYears': 'आपके प्रमुख कमाई के साल आगे हैं। अभी बचाया हर रुपया 3 गुना काम करता है।',
+    'story.midCareer': 'मध्य-करियर तेजी लाने का सही समय है।',
+    'story.experiencedPro': 'अनुभव आपकी महाशक्ति है। रणनीतिक योगदान अभी भी बड़ा प्रभाव डालता है।',
+    'story.simulatorMessage': 'छोटी मासिक आदतें आजीवन वित्तीय स्वतंत्रता को आकार देती हैं।',
+    'story.dashboardMessage': 'आपका भविष्य का स्वरूप आज के फैसलों पर निर्भर करता है।',
   },
 } as const;
 
