@@ -259,6 +259,13 @@ const Dashboard = () => {
             </div>
           </div>
 
+          {/* Emotional Storytelling */}
+          <div className="game-card text-center animate-fade-in bg-primary/5 border border-primary/10">
+            <p className="text-xs text-muted-foreground italic">
+              {t(lang, 'story.dashboardMessage' as TranslationKey)}
+            </p>
+          </div>
+
           {/* Footer */}
           <div className="rounded-2xl border border-border bg-muted/50 p-3 text-center animate-fade-in">
             <div className="mt-4 text-center">
