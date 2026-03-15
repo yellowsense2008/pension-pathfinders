@@ -74,17 +74,17 @@ const Onboarding = () => {
               {t(language, 'onboarding.language')}
             </div>
             <div className="flex rounded-full bg-muted p-0.5">
-              {(['en', 'hi'] as const).map(lang => (
+              {(['en', 'hi', 'ml'] as const).map(lang => (
                 <button
                   key={lang}
                   onClick={() => handleLanguageChange(lang)}
-                  className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-all ${
+                  className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-all ${
                     language === lang
                       ? 'gradient-primary text-primary-foreground'
                       : 'text-muted-foreground'
                   }`}
                 >
-                  {lang === 'en' ? 'English' : 'हिंदी'}
+                  {lang === 'en' ? 'EN' : lang === 'hi' ? 'हि' : 'മല'}
                 </button>
               ))}
             </div>
