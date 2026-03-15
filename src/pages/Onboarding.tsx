@@ -12,9 +12,11 @@ const Onboarding = () => {
   const [age, setAge] = useState(25);
   const [income, setIncome] = useState<number | ''>('');
   const [contribution, setContribution] = useState<number | ''>('');
-  const [language, setLanguage] = useState<'en' | 'hi'>(() => {
+  const [language, setLanguage] = useState<'en' | 'hi' | 'ml'>(() => {
     const saved = localStorage.getItem('pensionquest-language');
-    return (saved === 'hi' ? 'hi' : 'en');
+    if (saved === 'hi') return 'hi';
+    if (saved === 'ml') return 'ml';
+    return 'en';
   });
 
   const handleLanguageChange = (lang: 'en' | 'hi') => {
