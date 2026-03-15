@@ -19,7 +19,7 @@ const Onboarding = () => {
     return 'en';
   });
 
-  const handleLanguageChange = (lang: 'en' | 'hi') => {
+  const handleLanguageChange = (lang: 'en' | 'hi' | 'ml') => {
     setLanguage(lang);
     localStorage.setItem('pensionquest-language', lang);
   };
