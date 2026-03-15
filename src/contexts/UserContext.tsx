@@ -14,7 +14,7 @@ export interface UserData {
   age: number;
   monthlyIncome: number;
   monthlyContribution: number;
-  language: 'en' | 'hi';
+  language: 'en' | 'hi' | 'ml';
   xp: number;
   level: number;
   streak: number;

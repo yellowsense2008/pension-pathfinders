@@ -12,12 +12,14 @@ const Onboarding = () => {
   const [age, setAge] = useState(25);
   const [income, setIncome] = useState<number | ''>('');
   const [contribution, setContribution] = useState<number | ''>('');
-  const [language, setLanguage] = useState<'en' | 'hi'>(() => {
+  const [language, setLanguage] = useState<'en' | 'hi' | 'ml'>(() => {
     const saved = localStorage.getItem('pensionquest-language');
-    return (saved === 'hi' ? 'hi' : 'en');
+    if (saved === 'hi') return 'hi';
+    if (saved === 'ml') return 'ml';
+    return 'en';
   });
 
-  const handleLanguageChange = (lang: 'en' | 'hi') => {
+  const handleLanguageChange = (lang: 'en' | 'hi' | 'ml') => {
     setLanguage(lang);
     localStorage.setItem('pensionquest-language', lang);
   };
@@ -72,17 +74,17 @@ const Onboarding = () => {
               {t(language, 'onboarding.language')}
             </div>
             <div className="flex rounded-full bg-muted p-0.5">
-              {(['en', 'hi'] as const).map(lang => (
+              {(['en', 'hi', 'ml'] as const).map(lang => (
                 <button
                   key={lang}
                   onClick={() => handleLanguageChange(lang)}
-                  className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-all ${
+                  className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-all ${
                     language === lang
                       ? 'gradient-primary text-primary-foreground'
                       : 'text-muted-foreground'
                   }`}
                 >
-                  {lang === 'en' ? 'English' : 'हिंदी'}
+                  {lang === 'en' ? 'EN' : lang === 'hi' ? 'हि' : 'മല'}
                 </button>
               ))}
             </div>

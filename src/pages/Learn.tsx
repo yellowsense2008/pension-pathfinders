@@ -3,6 +3,7 @@ import { useUser } from '@/contexts/UserContext';
 import BottomNav from '@/components/BottomNav';
 import PageTransition from '@/components/PageTransition';
 import FloatingXP from '@/components/FloatingXP';
+import EducationalTopics from '@/components/EducationalTopics';
 import { BookOpen, Check, ChevronRight, Zap, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { t, TranslationKey } from '@/lib/translations';
@@ -279,6 +280,8 @@ const Learn = () => {
               </motion.button>
             );
           })}
+
+          <EducationalTopics lang={lang} />
         </div>
 
         <BottomNav />
