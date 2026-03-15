@@ -280,6 +280,8 @@ const Learn = () => {
               </motion.button>
             );
           })}
+
+          <EducationalTopics lang={lang} />
         </div>
 
         <BottomNav />
